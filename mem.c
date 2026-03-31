@@ -55,17 +55,7 @@ void *xrealloc(void *ptr, size_t sz) {
 }
 
 void xfree(void *ptr) {
-    if (!ptr) return;
-
-    DebugHeader *h = ((DebugHeader *)ptr) - 1;
-
-    if (h->prev) h->prev->next = h->next;
-    else dbgHead = h->next;
-
-    if (h->next) h->next->prev = h->prev;
-
-    debugBytesAlive -= h->size;
-    free(h);
+    free(ptr);
 }
 
 void *debugAlloc(size_t sz) {
