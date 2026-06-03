@@ -13,11 +13,13 @@
 typedef void *(*AllocFunction)(size_t sz);
 typedef void (*FreeFunction)(void *ptr);
 typedef void *(*ReallocFunction)(void *ptr, size_t sz);
+typedef char *(*StrdupFunction)(const char *s);
 
 typedef struct {
     AllocFunction alloc;
     FreeFunction free;
     ReallocFunction realloc;
+    StrdupFunction strdup;
 } Allocator;
 
 typedef const Allocator IAllocator;
@@ -31,7 +33,9 @@ void debugFree(void *ptr);
 void *debugRealloc(void *ptr, size_t sz);
 void debugReportLeaks(void);
 
-char *xstrdup(IAllocator allocator, const char *s);
+char *basicStrdup(const char *s);
+char *safeStrdup(const char *s);
+char *debugStrdup(const char *s);
 
 extern IAllocator BasicAllocator;
 extern IAllocator SafeAllocator;

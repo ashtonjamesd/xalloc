@@ -15,18 +15,21 @@ IAllocator BasicAllocator = {
     .alloc = malloc,
     .free = free,
     .realloc = realloc,
+    .strdup = basicStrdup,
 };
 
 IAllocator SafeAllocator = {
     .alloc = xalloc,
     .free = xfree,
     .realloc = xrealloc,
+    .strdup = safeStrdup,
 };
 
 IAllocator DebugAllocator = {
     .alloc = debugAlloc,
     .free = debugFree,
     .realloc = debugRealloc,
+    .strdup = debugStrdup,
 };
 
 static inline void checkPtr(void *ptr) {
@@ -141,11 +144,11 @@ void debugReportLeaks(void) {
     fprintf(stderr, "Total leaked: %zu bytes\n", debugBytesAlive);
 }
 
-char *xstrdup(IAllocator allocator, const char *s) {
+static char *strdupWith(AllocFunction alloc, const char *s) {
     if (!s) return NULL;
 
     size_t len = strlen(s);
-    char *dup = allocator.alloc(len + 1);
+    char *dup = alloc(len + 1);
 
     for (size_t i = 0; i < len; i++) {
         dup[i] = s[i];
@@ -153,4 +156,16 @@ char *xstrdup(IAllocator allocator, const char *s) {
     dup[len] = '\0';
 
     return dup;
+}
+
+char *basicStrdup(const char *s) {
+    return strdupWith(malloc, s);
+}
+
+char *safeStrdup(const char *s) {
+    return strdupWith(xalloc, s);
+}
+
+char *debugStrdup(const char *s) {
+    return strdupWith(debugAlloc, s);
 }
